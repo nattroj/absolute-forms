@@ -1,80 +1,90 @@
-import { useState, useEffect } from 'react';
-import styled from 'styled-components';
-import background from './assets/sample1.png';
-
+import React, { useState, useCallback } from 'react';
 import { Rnd } from 'react-rnd';
+import styled from 'styled-components';
+import useBackground from './hooks/useBackground';
+import useResizablePage from './hooks/useResizablePage';
 
-const Page = styled.div`
-  position: relative;
-  width: ${(props) => props.pageSize.width}px;
-  height: ${(props) => props.pageSize.height}px;
-`
+import Header from './components/Header';
 
-const Background = styled.img`
+const Page = styled.section`
   position: absolute;
-  top: 0px;
-  left: 0px;
+  top: 0;
+  left: 0;
+  margin-top: 80px;
+  ${({ page }) => !!page && { height: page.height, width: page.width }} 
+`;
+
+const Image = styled.img`
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
-`
+  z-index: -1;
+`;
 
-const Field = styled.input`
-  position: absolute;
-  left: ${props => props.x}px;
-  top: ${props => props.y}px;
-`
+// const fields = [];
 
 function App() {
-  const [newField, setNewField] = useState({ name: '', type: '' });
-  const [pageSize, setPageSize] = useState({
-    width: window.innerWidth < 1700 ? window.innerWidth : 1700,
-    height: window.innerWidth < 1700 ? window.innerWidth * 1.647 : 1700 * 1.647
-  })
-  const [fields, setFields] = useState([]);
+  const [file, setFile] = useState(null);
+  const [fields, setFields] = useState({});
+  const background = useBackground(file);
+  const { page, imgRef } = useResizablePage(background);
 
-  const addField = () => {
-    setFields([...fields, newField]);
-    setNewField({ name: '', type: '' });
-  }
+  const generateJSON = useCallback(() => {
+    console.log(JSON.stringify(Object.values(fields).reduce((json, field) => {
+      json[field.name] = {
+        name: field.name,
+        type: field.type,
+        xMod: field.x / page.width,
+        yMod: field.y / page.height,
+        widthMod: field.width / page.width,
+        heightMod: field.height / page.height,
+      }
 
-  const generateForm = () => {
-    const form = fields.reduce((gen, field) => {
-      gen[field.name] = { x: null, y: null, xModifier: null, yModifier: null };
-      return gen;
-    }, {})
+      if ('x' in field.label) {
+        json[field.name].label = { 
+          xMod: field.label.x / page.width,
+          yMod: field.label.y / page.height,
+          widthMod: field.label.width / page.width,
+          heightMod: field.label.height / page.height,
+        }
+      }
 
-    console.log(form);
-  }
+      return json;
+    }, {}), null, 2));
 
-  useEffect(() => {
-    const handleResize = () => setPageSize({
-      width: window.innerWidth < 1700 ? window.innerWidth : 1700,
-      height: window.innerWidth < 1700 ? window.innerWidth * 1.647 : 1700 * 1.647
-    });
-    window.addEventListener('resize', handleResize);
-
-    return () => window.removeEventListener('resize', handleResize);
-  }, [])
+  }, [page, fields])
 
   return (
-    <div className="App">
-      <input name='name' value={newField.name} onChange={e => setNewField({ ...newField, [e.target.name]: e.target.value })} />
-      <select name='type' value={newField.type} onChange={e => setNewField({ ...newField, [e.target.name]: e.target.value })}>
-        <option value='text'>text</option>
-        <option value='checkbox'>checkbox</option>
-      </select>
-      <button onClick={addField}>add field</button> 
-      <button onClick={generateForm}>generate</button> 
-      <Page pageSize={pageSize}>
-        <Background src={background} />
-        {fields.map(field => (
-          <Rnd onDragStop={(e, data) => console.log(data)} onResizeStop={(e, d, r, delta) => console.log(delta)}>
-            <input style={{ width: '100%', height: '100%' }} />
+    <>
+    <Header {...{ fields, setFields, file, setFile, generateJSON }} />
+    <Page page={page}>
+      <Image src={background} ref={imgRef} />
+        {Object.values(fields).map((field) => (
+          <React.Fragment key={field.name}>
+          <Rnd
+            default={{ width: 100, height: 20, x: 20, y: 20 }}
+            onResizeStop={(e, d, r, d2, p) => setFields({ ...fields, [field.name]: { ...field, height: r.clientHeight, width: r.clientWidth } })}
+            onDragStop={(e, d) => setFields({ ...fields, [field.name]: { ...field, x: d.x, y: d.y } })}
+            style={{ border: '1px solid black', textOverflow: '' }}
+          >
+            {field.name}
           </Rnd>
+          {field.type === 'checkbox' && (
+            <Rnd 
+              default={{ height: 20, width: 100, x: 120, y: 20 }} 
+              onResizeStop={(e, d, r, d2, p) => setFields({ ...fields, [field.name]: { ...field, label: { ...field.label,  height: r.clientHeight, width: r.clientWidth } } })}
+              onDragStop={(e, d) => setFields({ ...fields, [field.name]: { ...field, label: { ...field.label, x: d.x, y: d.y } } })}
+              style={{ border: '1px solid black', textOverflow: 'clip' }}
+            >
+            </Rnd>
+          )}
+          </React.Fragment>
         ))}
       </Page>
-    </div>
-  );
+    </>
+  )
 }
 
 export default App;

@@ -2,9 +2,21 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { createGlobalStyle } from 'styled-components';
+import reset from 'styled-reset';
+
+const Reset = createGlobalStyle`
+  ${reset}
+  * {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+  }
+`;
 
 ReactDOM.render(
   <React.StrictMode>
+    <Reset />
     <App />
   </React.StrictMode>,
   document.getElementById('root')
