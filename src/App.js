@@ -36,6 +36,7 @@ function App() {
       json[field.name] = {
         name: field.name,
         type: field.type,
+        options: field.options,
         xMod: field.x / page.width,
         yMod: field.y / page.height,
         widthMod: field.width / page.width,
