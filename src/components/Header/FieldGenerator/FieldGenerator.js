@@ -14,12 +14,20 @@ const optionDefault = {
   value: ''
 }
 
-const FieldGenerator = ({ fields, setFields }) => {
+const FieldGenerator = ({ fields, setFields, options, setOptions, setSelectedField }) => {
   const [field, setField] = useState(fieldDefault);
   const [option, setOption] = useState(optionDefault)
-  const [options, setOptions] = useState([])
+  // const [options, setOptions] = useState([])
 
-  const handleChange = event => setField({ ...field, [event.target.name]: event.target.value });
+  const handleChange = event => {
+    console.log(field)
+    const newField = {...field}
+    if (event.target.name === 'type' && event.target.value !== 'select') {
+      setOptions([])
+      delete newField.options
+    }
+    setField({ ...newField, [event.target.name]: event.target.value });
+  }
   const handleOptionChange = event => {
     setOption({ ...option, [event.target.name]: event.target.value})
   }
@@ -34,6 +42,7 @@ const FieldGenerator = ({ fields, setFields }) => {
   }
 
   const addOption = () => {
+    setSelectedField(null)
     if (!option.label || !option.value) return alert('option must have both a label and value');
     if (options.filter(op => op.label === option.label).length === 1) return alert('option with that label already exists');
     if (options.filter(op => op.value === option.value).length === 1) return alert('option with that value already exists');
@@ -44,7 +53,6 @@ const FieldGenerator = ({ fields, setFields }) => {
 
   useEffect(() => {
     setField({ ...field, options: options })
-    console.log(options)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [option])
   

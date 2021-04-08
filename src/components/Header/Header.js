@@ -1,5 +1,7 @@
+import React from 'react';
 import styled from 'styled-components';
 import FieldGenerator from './FieldGenerator';
+import { useForm } from 'react-hook-form';
 
 const StyledHeader = styled.header`
   position: fixed;
@@ -19,16 +21,26 @@ const Title = styled.h1`
   font-weight: bold;
 `;
 
-const Header = ({ fields, setFields, file, setFile, generateJSON }) => {
+const Header = ({ fields, setFields, file, setFile, uploadJSON, generateJSON, options, setOptions, setSelectedField, hiddenDownloadRef }) => {
+  const { handleSubmit, register } = useForm();
 
   return (
     <StyledHeader>
       <Title>Form Generator</Title>
       {!!file 
-        ? <FieldGenerator fields={fields} setFields={setFields} />
+        ? <FieldGenerator fields={fields} setFields={setFields} options={options} setOptions={setOptions} setSelectedField={setSelectedField} />
         : <input type='file' onChange={e => setFile(e.target.files[0])} />
       }
-      {!!file && <button onClick={generateJSON}>Generate JSON</button>}
+      {!!file && (
+        <React.Fragment>
+          <button onClick={generateJSON}>Generate JSON</button>
+          <form onSubmit={handleSubmit(uploadJSON)}>
+            <input name='jsonFile' ref={register} type='file' accept='.json'/>
+            <button type='submit'>Submit</button>
+          </form>
+        </React.Fragment>
+      )}
+      <a ref={hiddenDownloadRef} hidden></a>
     </StyledHeader>
   )
 }
