@@ -41,8 +41,6 @@ function App() {
   const { handleSubmit, register } = useForm();
 
   const selectField = (field) => {
-    console.log(field)
-    console.log(fields)
     setSelectedField(field)
   }
   // const generateJSON = useCallback(() => {
@@ -73,19 +71,28 @@ function App() {
 
   const generateJSON = event => {
     event.preventDefault();
+    console.log(fields)
     const output = JSON.stringify(Object.values(fields).reduce((json, field) => {
       json[field.name] = {
         name: field.name,
         type: field.type,
         options: field.options,
+        // x: field.x,
+        // y: field.y,
+        // width: field.width,
+        // height: field.height,
         xMod: field.x / page.width,
         yMod: field.y / page.height,
         widthMod: field.width / page.width,
         heightMod: field.height / page.height,
       }
 
-      if ('x' in field.label) {
+      if (!!field.label && !!field.label.x) {
         json[field.name].label = { 
+          // x: field.label.x,
+          // y: field.label.y,
+          // width: field.label.width,
+          // height: field.label.height,
           xMod: field.label.x / page.width,
           yMod: field.label.y / page.height,
           widthMod: field.label.width / page.width,
@@ -95,6 +102,7 @@ function App() {
 
       return json;
     }, {}), null, 2);
+    console.log(output)
     const jsonFile = new Blob([output], { type: JSON })
 
     const url = URL.createObjectURL(jsonFile);
@@ -113,6 +121,7 @@ function App() {
           output[field.name] = {
             name: field.name,
             type: field.type,
+            options: field.options,
             x: field.xMod * page.width,
             y: field.yMod * page.height,
             width: field.widthMod * page.width,
@@ -172,7 +181,7 @@ function App() {
       <Image src={background} ref={imgRef} />
         {Object.values(fields).map((field) => (
           <React.Fragment key={field.name}>
-            {field.type === 'select' && (
+            {/* {field.type === 'select' && (
               <select 
                 name={field.name}
                 style={{ outline: 'none', position: 'absolute', width: field.width, height: field.height, left: field.x, top: field.y }}
@@ -209,13 +218,13 @@ function App() {
                 >
                 </label>
               </React.Fragment>
-            )}
-          {/* <Rnd
-            default={!!field.x ? { width: field.width, height: field.height, x: field.x, y: field.y } : field.type === 'checkbox' ? { width: 25, height: 25, x: 20, y: 20 } : { width: 100, height: 20, x: 20, y: 20 }}
+            )} */}
+          <Rnd
+            default={{ width: field.width, height: field.height, x: field.x, y: field.y }}
             // default={ { width: field.width, height: field.height, x: field.x, y: field.y }}
             onResizeStop={(e, d, r, d2, p) => setFields({ ...fields, [field.name]: { ...field, height: r.clientHeight, width: r.clientWidth } })}
             onDragStop={(e, d) => setFields({ ...fields, [field.name]: { ...field, x: d.x, y: d.y } })}
-            style={{ backgroundColor: 'rgba(189, 217, 240, 0.9)', textOverflow: '', backgroundImage: field.type === 'checkbox' ? `url(${checkmark})` : 'none', backgroundSize: 'contain' }}
+            style={{ backgroundColor: 'rgba(189, 217, 240, 0.9)', textOverflow: '', backgroundImage: field.type === 'checkbox' ? `url(${checkmark})` : 'none', backgroundSize: 'contain', backgroundRepeat: 'no-repeat  ' }}
             onClick={() => selectField(field)}
             enableResizing={isResizable}
             disableDragging={isResizable}
@@ -224,7 +233,7 @@ function App() {
           </Rnd>
           {field.type === 'checkbox' && (
             <Rnd 
-              default={!!field.x ? { width: field.label.width, height: field.label.height, x: field.label.x, y: field.label.y } : { height: 20, width: 100, x: 120, y: 20 }} 
+              default={{ width: field.label.width, height: field.label.height, x: field.label.x, y: field.label.y }} 
               onResizeStop={(e, d, r, d2, p) => setFields({ ...fields, [field.name]: { ...field, label: { ...field.label,  height: r.clientHeight, width: r.clientWidth } } })}
               onDragStop={(e, d) => setFields({ ...fields, [field.name]: { ...field, label: { ...field.label, x: d.x, y: d.y } } })}
               style={{ outline: '1px solid black', outlineOffset: '-1px', textOverflow: '', overflow: 'hidden' }}
@@ -234,7 +243,7 @@ function App() {
             >
               {field.name}
             </Rnd>
-          )} */}
+          )}
           </React.Fragment>
         ))}
       </Page>

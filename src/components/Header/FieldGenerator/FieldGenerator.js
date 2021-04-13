@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
 
-const fieldDefault = {
+const defaultState = {
   name: '',
   type: 'text',
-  x: null,
-  y: null,
+  x: 20,
+  y: 20,
   width: null,
   height: null,
-  label: {}
 }
 const optionDefault = {
   label: '',
@@ -15,17 +14,12 @@ const optionDefault = {
 }
 
 const FieldGenerator = ({ fields, setFields, options, setOptions, setSelectedField }) => {
-  const [field, setField] = useState(fieldDefault);
+  const [field, setField] = useState(defaultState);
   const [option, setOption] = useState(optionDefault)
-  // const [options, setOptions] = useState([])
 
   const handleChange = event => {
     console.log(field)
     const newField = {...field}
-    if (event.target.name === 'type' && event.target.value !== 'select') {
-      setOptions([])
-      delete newField.options
-    }
     setField({ ...newField, [event.target.name]: event.target.value });
   }
   const handleOptionChange = event => {
@@ -36,8 +30,32 @@ const FieldGenerator = ({ fields, setFields, options, setOptions, setSelectedFie
     if (!field.name) return alert('field must have name');
     if (field.name in fields) return alert('field with that name already exists');
 
-    setFields({ ...fields, [field.name]: field });
-    setField(fieldDefault)
+    const defaultField = {...field}
+    if (field.type === 'checkbox') {
+      defaultField.height = 25
+      defaultField.width = 25
+      defaultField.label = {
+        x: 120,
+        y: 20,
+        height: 20,
+        width: 100
+      }
+    }
+    else {
+      defaultField.height = 20
+      defaultField.width = 100
+    }
+
+    if (field.type !== 'select') {
+      setOptions([])
+      delete defaultField.options
+    }
+
+    setFields({ 
+      ...fields,
+      [field.name]: defaultField
+    });
+    setField(defaultState)
     setOptions([])
   }
 
