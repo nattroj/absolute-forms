@@ -154,21 +154,82 @@ function App() {
 
   useEffect(() => {
     const altKeyDown = event => {
+      // prevents scrolling with arrow keys
+      if (["Space", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].indexOf(event.code) > -1) {
+        event.preventDefault();
+      }
       if (event.keyCode === 18) setIsResizable(true)
+      if (event.keyCode === 38 && selectedField) {
+        console.log(selectedField)
+        const movedField = {
+          ...selectedField,
+          y: selectedField.y - 1
+        }
+        const newFields = {
+          ...fields,
+          [movedField.name]: movedField
+        }
+        console.log(newFields[movedField.name])
+        setFields(newFields)
+        setSelectedField(newFields[movedField.name])
+      }
+      if (event.keyCode === 39 && selectedField) {
+        console.log(selectedField)
+        const movedField = {
+          ...selectedField,
+          x: selectedField.x + 1
+        }
+        const newFields = {
+          ...fields,
+          [movedField.name]: movedField
+        }
+        console.log(newFields[movedField.name])
+        setFields(newFields)
+        setSelectedField(newFields[movedField.name])
+      }
+      if (event.keyCode === 40 && selectedField) {
+        console.log(selectedField)
+        const movedField = {
+          ...selectedField,
+          y: selectedField.y + 1
+        }
+        const newFields = {
+          ...fields,
+          [movedField.name]: movedField
+        }
+        console.log(newFields[movedField.name])
+        setFields(newFields)
+        setSelectedField(newFields[movedField.name])
+      }
+      if (event.keyCode === 37 && selectedField) {
+        console.log(selectedField)
+        const movedField = {
+          ...selectedField,
+          x: selectedField.x - 1
+        }
+        const newFields = {
+          ...fields,
+          [movedField.name]: movedField
+        }
+        console.log(newFields[movedField.name])
+        setFields(newFields)
+        setSelectedField(newFields[movedField.name])
+      }
     }
-
     const altKeyUp = event => {
       if (event.keyCode === 18) setIsResizable(false)
     }
 
     window.addEventListener('keydown', altKeyDown) 
     window.addEventListener('keyup', altKeyUp)
-    
+
+    // to move selected field by single pixels
+
     return () => { 
       window.removeEventListener('keydown', altKeyDown)
       window.removeEventListener('keyup', altKeyUp)
     }
-  }, [])
+  }, [selectedField, fields])
 
   const submitForm = data => {
     console.log(data)
