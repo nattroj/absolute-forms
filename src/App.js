@@ -40,47 +40,18 @@ function App() {
   const [isResizable, setIsResizable] = useState(false)
   const { handleSubmit, register } = useForm();
 
+
   const selectField = (field) => {
     setSelectedField(field)
   }
-  // const generateJSON = useCallback(() => {
-  //   console.log(JSON.stringify(Object.values(fields).reduce((json, field) => {
-  //     json[field.name] = {
-  //       name: field.name,
-  //       type: field.type,
-  //       options: field.options,
-  //       xMod: field.x / page.width,
-  //       yMod: field.y / page.height,
-  //       widthMod: field.width / page.width,
-  //       heightMod: field.height / page.height,
-  //     }
-
-  //     if ('x' in field.label) {
-  //       json[field.name].label = { 
-  //         xMod: field.label.x / page.width,
-  //         yMod: field.label.y / page.height,
-  //         widthMod: field.label.width / page.width,
-  //         heightMod: field.label.height / page.height,
-  //       }
-  //     }
-
-  //     return json;
-  //   }, {}), null, 2));
-
-  // }, [page, fields])
 
   const generateJSON = event => {
     event.preventDefault();
-    console.log(fields)
     const output = JSON.stringify(Object.values(fields).reduce((json, field) => {
       json[field.name] = {
         name: field.name,
         type: field.type,
         options: field.options,
-        // x: field.x,
-        // y: field.y,
-        // width: field.width,
-        // height: field.height,
         xMod: field.x / page.width,
         yMod: field.y / page.height,
         widthMod: field.width / page.width,
@@ -89,10 +60,6 @@ function App() {
 
       if (!!field.label && !!field.label.x) {
         json[field.name].label = { 
-          // x: field.label.x,
-          // y: field.label.y,
-          // width: field.label.width,
-          // height: field.label.height,
           xMod: field.label.x / page.width,
           yMod: field.label.y / page.height,
           widthMod: field.label.width / page.width,
@@ -102,7 +69,6 @@ function App() {
 
       return json;
     }, {}), null, 2);
-    console.log(output)
     const jsonFile = new Blob([output], { type: JSON })
 
     const url = URL.createObjectURL(jsonFile);
@@ -142,7 +108,6 @@ function App() {
 
           return output;
         }, {}))
-        console.log(json)
       }
       catch (e) {
         console.log(e)
@@ -153,87 +118,83 @@ function App() {
   }
 
   useEffect(() => {
-    const altKeyDown = event => {
-      // prevents scrolling with arrow keys
-      if (["Space", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].indexOf(event.code) > -1) {
+    const arrowKeysDown = event => {
+      if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].indexOf(event.code) > -1) {
         event.preventDefault();
       }
-      if (event.keyCode === 18) setIsResizable(true)
       if (event.keyCode === 38 && selectedField) {
-        console.log(selectedField)
-        const movedField = {
-          ...selectedField,
-          y: selectedField.y - 1
+        const updatedField = { ...selectedField };
+
+        if (isResizable) { 
+          updatedField.height = selectedField.height + 1;
         }
-        const newFields = {
-          ...fields,
-          [movedField.name]: movedField
+        else {
+          updatedField.y = selectedField.y - 1;
+
         }
-        console.log(newFields[movedField.name])
-        setFields(newFields)
-        setSelectedField(newFields[movedField.name])
+        setFields({ ...fields, [updatedField.name]: updatedField })
+        setSelectedField(updatedField);
       }
-      if (event.keyCode === 39 && selectedField) {
-        console.log(selectedField)
-        const movedField = {
-          ...selectedField,
-          x: selectedField.x + 1
+      else if (event.keyCode === 39 && selectedField) {
+        const updatedField = { ...selectedField };
+
+        if (isResizable) { 
+          updatedField.width = selectedField.width + 1;
         }
-        const newFields = {
-          ...fields,
-          [movedField.name]: movedField
+        else {
+          updatedField.x = selectedField.x + 1;
         }
-        console.log(newFields[movedField.name])
-        setFields(newFields)
-        setSelectedField(newFields[movedField.name])
+        setFields({ ...fields, [updatedField.name]: updatedField })
+        setSelectedField(updatedField);
       }
-      if (event.keyCode === 40 && selectedField) {
-        console.log(selectedField)
-        const movedField = {
-          ...selectedField,
-          y: selectedField.y + 1
+      else if (event.keyCode === 40 && selectedField) {
+        const updatedField = { ...selectedField };
+
+        if (isResizable) { 
+          updatedField.height = selectedField.height - 1;
         }
-        const newFields = {
-          ...fields,
-          [movedField.name]: movedField
+        else {
+          updatedField.y = selectedField.y + 1;
         }
-        console.log(newFields[movedField.name])
-        setFields(newFields)
-        setSelectedField(newFields[movedField.name])
+        setFields({ ...fields, [updatedField.name]: updatedField })
+        setSelectedField(updatedField);
       }
-      if (event.keyCode === 37 && selectedField) {
-        console.log(selectedField)
-        const movedField = {
-          ...selectedField,
-          x: selectedField.x - 1
+      else if (event.keyCode === 37 && selectedField) {
+        const updatedField = { ...selectedField };
+
+        if (isResizable) { 
+          updatedField.width = selectedField.width - 1;
         }
-        const newFields = {
-          ...fields,
-          [movedField.name]: movedField
+        else {
+          updatedField.x = selectedField.x - 1;
         }
-        console.log(newFields[movedField.name])
-        setFields(newFields)
-        setSelectedField(newFields[movedField.name])
+        setFields({ ...fields, [updatedField.name]: updatedField })
+        setSelectedField(updatedField);
       }
+      
+    }
+    const altKeyDown = event => {
+      // prevents scrolling with arrow keys
+      if (event.keyCode === 18) setIsResizable(true)
     }
     const altKeyUp = event => {
       if (event.keyCode === 18) setIsResizable(false)
     }
 
-    window.addEventListener('keydown', altKeyDown) 
+    window.addEventListener('keydown', altKeyDown)
+    window.addEventListener('keydown', arrowKeysDown)
     window.addEventListener('keyup', altKeyUp)
 
     // to move selected field by single pixels
 
     return () => { 
       window.removeEventListener('keydown', altKeyDown)
+      window.removeEventListener('keydown', arrowKeysDown)
       window.removeEventListener('keyup', altKeyUp)
     }
-  }, [selectedField, fields])
+  }, [selectedField, fields, isResizable])
 
-  const submitForm = data => {
-    console.log(data)
-  }
+
   return (
     <>
     <InfoModal fields={fields} setFields={setFields} selectedField={selectedField} setSelectedField={setSelectedField} options={options} setOptions={setOptions}/>
@@ -285,10 +246,12 @@ function App() {
             // default={ { width: field.width, height: field.height, x: field.x, y: field.y }}
             onResizeStop={(e, d, r, d2, p) => setFields({ ...fields, [field.name]: { ...field, height: r.clientHeight, width: r.clientWidth } })}
             onDragStop={(e, d) => setFields({ ...fields, [field.name]: { ...field, x: d.x, y: d.y } })}
-            style={{ backgroundColor: 'rgba(189, 217, 240, 0.9)', textOverflow: '', backgroundImage: field.type === 'checkbox' ? `url(${checkmark})` : 'none', backgroundSize: 'contain', backgroundRepeat: 'no-repeat  ' }}
+            style={{ backgroundColor: 'rgba(189, 217, 240, 0.9)', textOverflow: '', overflow: 'hidden', backgroundImage: field.type === 'checkbox' ? `url(${checkmark})` : 'none', backgroundSize: 'contain', backgroundRepeat: 'no-repeat  ' }}
             onClick={() => selectField(field)}
             enableResizing={isResizable}
             disableDragging={isResizable}
+            position={{ x: field.x, y: field.y }} 
+            size={{ height: field.height, width: field.width }}
           >
             {field.type === 'checkbox' ? '' : field.name}
           </Rnd>
@@ -301,6 +264,8 @@ function App() {
               onClick={() => selectField(field)}
               enableResizing={isResizable}
               disableDragging={isResizable}
+              position={{ x: field.label.x, y: field.label.y }} 
+              size={{ height: field.label.height, width: field.label.width }}
             >
               {field.name}
             </Rnd>
