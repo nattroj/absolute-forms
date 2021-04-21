@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
+// render using window inner values
 const defaultState = {
   name: '',
   type: 'text',
@@ -18,7 +19,6 @@ const FieldGenerator = ({ fields, setFields, options, setOptions, setSelectedFie
   const [option, setOption] = useState(optionDefault)
 
   const handleChange = event => {
-    console.log(field)
     const newField = {...field}
     setField({ ...newField, [event.target.name]: event.target.value });
   }
@@ -34,14 +34,18 @@ const FieldGenerator = ({ fields, setFields, options, setOptions, setSelectedFie
     if (field.type === 'checkbox') {
       defaultField.height = 25
       defaultField.width = 25
+      defaultField.x = window.scrollX + 20
+      defaultField.y = window.scrollY + 20
       defaultField.label = {
-        x: 120,
-        y: 20,
+        x: window.scrollX + 120,
+        y: window.scrollY + 20,
         height: 20,
         width: 100
       }
     }
     else {
+      defaultField.x = window.scrollX + 20
+      defaultField.y = window.scrollY + 20
       defaultField.height = 20
       defaultField.width = 100
     }
